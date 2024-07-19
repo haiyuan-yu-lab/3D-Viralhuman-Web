@@ -1,6 +1,5 @@
 # 3D ViralHuman Interactome Web Server
-Source code for the Django Web Server, data is not included. The running server site is: https://3d-viralhuman.yulab.org
-
+Source code for the Django Web Server, data is not included. The running server site is https://3d-viralhuman.yulab.org.
 
 ## Build and run servers:
 1. With `docker-compose` or `docker compose` command
@@ -9,7 +8,7 @@ Source code for the Django Web Server, data is not included. The running server 
       - `docker-compose build` (or `docker compose build` if `docker-compose` does not exist)
     - Run containers. After building the image, run
       - `docker-compose up` (or `docker compose up`). Use `-d` to run the container in the background
-2. With `docker` and manually link web server and database server (if both `docker-compose` and `docker compose` do not work)
+2. With `docker` and manually link the web server and database server (if both `docker-compose` and `docker compose` do not work)
     - Build web image
       - `docker build -t vh3d .`
     - Create an image and container for the database (if port 5432 is not available, change the first 5432 to another one and change .env accordingly)
@@ -33,8 +32,10 @@ Source code for the Django Web Server, data is not included. The running server 
 
 ## Access the webserver:
 1. Locally (development):
-    - [server ip]:[host port] (for example, if I run the containers on cbsuhy02, then the address of the webserver is `cbsuhy02.biohpc.cornell.edu:8888`)
+    - [server ip]:[host port] (for example, if I run the containers on the server with address xxx.xxx.xxx, then the address of the webserver is `xxx.xxx.xxx:8888`)
 2. Publicly (production):
-    - Contact server owner/technician for help
-    - Make sure the webserver is running smoothly on r9host
-  - Send them the domain name you prefer (e.g. 3d-viralhost.yulab.org), host port, web container name/id
+    - Make sure the webserver is running smoothly on your server
+    - Contact the server owner/technician to set up the proxy to the public domain
+  
+## Contact
+Please contact ll863@cornell.edu if you have any questions.
