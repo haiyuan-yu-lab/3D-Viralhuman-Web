@@ -1,5 +1,5 @@
 # 3D ViralHuman Interactome Web Server
-Source code for the Django Web Server, data is not included. The running server site is https://3d-viralhuman.yulab.org.
+Source code for the Django Web Server, data is not included. To build and run the web server, `v2h_binary_list_with_ires_iseq_category_seq_20231012.txt`, `v2h_binary_ppi_info_complete_20230814.txt`, and `v2h_bincocomp_with_coverage.csv` are necessary in the folder `static/downloads/interface/`. To show the structures, docked structures and single structures are necessary in the folders `static/docked_models/` and `static/single_models/`, respectively. To support download, `docked_models.tar.gz` and `single_models.tar.gz` are necessary in the folder `static/downloads/`. The running server site is https://3d-viralhuman.yulab.org.
 
 ## Build and run servers:
 1. With `docker-compose` or `docker compose` command
