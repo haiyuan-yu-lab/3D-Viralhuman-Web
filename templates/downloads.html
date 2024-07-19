@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" lang="en-US">
+    <meta name="author" content="Le Li, Charles Liang, Yu Lab, Cornell University">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Downloads</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        @media (max-width: 1388px) {
+            body {min-width: 1388px;}
+        }
+    </style>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/download.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'yulab.ico' %}"/>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178386462-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178386462-1');
+    </script>
+</head>
+<body class="d-flex flex-column">
+    <nav class="navbar navbar-expand-sm navbar-light fixed-top bg-light">
+        <a class="navbar-brand d-none d-sm-block" href="{% url 'index' %}">3D Viral-Human Interactome Browser</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Home</a>
+                </li>
+                <li class="nav-item ml-sm-3 active">
+                    <a class="nav-link" href="{% url 'downloads' %}">Downloads<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item ml-sm-3">
+                    <a class="nav-link" href="{% url 'about' %}">About</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main role="main" class="container-fluid flex-fill mt-5">
+        <div style="position:absolute;left:90px;top:85px">
+            <div>
+                <b>Release Date: 2024-JUL</b>&nbsp
+<!--                &nbsp <a href="{% static 'downloads/all_downloads.zip' %}" download>Download all files</a> -->
+            </div>
+        </div>
+
+        <br/><br/><br/>
+
+        <div class="tabs mt-4 ml-4">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="v1" data-toggle="tab" href="#nav-interface" role="tab" aria-controls="nav-interface" aria-selected="true">Interactions</a>
+                    <a class="nav-item nav-link" id="v2" data-toggle="tab" href="#nav-structure" role="tab" aria-controls="nav-structure" aria-selected="false">Structures</a>
+                    <!-- <a class="nav-item nav-link" id="v3" data-toggle="tab" href="#nav-mutation" role="tab" aria-controls="nav-mutation" aria-selected="false">Mutations</a> -->
+                    <!-- <a class="nav-item nav-link" id="v4" data-toggle="tab" href="#nav-ΔΔG" role="tab" aria-controls="nav-ΔΔG" aria-selected="false">ΔΔG</a> -->
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-interface" role="tabpanel" aria-labelledby="nav-interface-tab">
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;"> 
+                        We collected all interactions (both binary and co-complex) from BIOGRID, IMEx, and virhostnet as of May 2022.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/v2h_bincocomp_with_coverage.csv' %}" download>Raw_interactions_collection</a>
+                        </li>
+                    </ul>
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;"> 
+                        11,666 binary interactions are extracted from the above list, with protein and virus information provided.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/v2h_binary_ppi_info_complete_20230814.txt' %}" download>Full_list_of_binary_interactions</a>
+                        </li>
+                    </ul>
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;"> 
+                        We successfully predicted co-complex structures for 10,476 interactions, and all details of the predictions (AlphaFold-Multimer score, SASA/dSASA/pLDDT for all residues, and extra columns for web server) are included in the following list.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/v2h_binary_list_with_ires_iseq_category_seq_20231012.txt' %}" download>List_of_interactions_with_prediction</a>
+                        </li>
+                    </ul>
+                    <!-- <h3 align="left">ECLAIR prediction</h3>
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;"> In Phase I, we leveraged our previously validated <b><U>E</U></b>nsemble <b><U>C</U></b>lassifier <b><U>L</U></b>earning <b><U>A</U></b>lgorithm to predict <b><U>I</U></b>nterface <b><U>R</U></b>esidues (ECLAIR,
+                        <a href="https://www.nature.com/articles/nmeth.4540" target="_blank">Meyer <i>et al</i>.</a>) to perform an initial prediction of likely interface residues across all interactions.
+                        Summary annotations and raw ECLAIR interface probabilities for each interaction are summarized below.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/ECLAIR_summary_2021_05.txt' %}" download>ECLAIR_summary_2021_05.txt</a>
+                        </li>
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/ECLAIR_predictions_2021_05.zip' %}" download>ECLAIR_predictions_2021_05.zip</a>
+                        </li>
+                    </ul>
+                    <h3 align="left">Guided PyRosetta Docking</h3>
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;">In phase II, we generated atomic resolution models of 250 interactions by leveraging the Rosetta scoring function (<a href="https://pubs.acs.org/doi/10.1021/acs.jctc.7b00125" target="_blank">Alford <i>et al</i>.</a>) and prior probabilities obtained from ECLAIR predictions to perform guided docking.
+                        The remaining 82 interactions were missing reliable 3D models at least one of their members and therefore were not amenable to docking.
+                        Interface residues were defined as those residues on the surface (relative accessibility ≥15%) and in contact with the partner chain (absolute change in accessibility decreased by ≥1.0 Å&sup2 comparing docked vs. undocked structures).
+                        Interface residue annotations were made using the top-ranked docked pose from ~50 independent trials. All other docking results are also provided.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/Protein_docking_summary_2021_05.txt' %}" download>Protein_docking_summary_2021_05.txt</a>
+                        </li>
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/Top_ranked_docks_2021_05.zip' %}" download>Top_ranked_docks_2021_05.zip</a>
+                        </li>
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/interface/Other_docks_2021_05.zip' %}" download>Other_docks_2021_05.zip</a>
+                        </li>
+                    </ul> -->
+                </div>
+
+                <div class="tab-pane fade" id="nav-structure" role="tabpanel" aria-labelledby="nav-structure-tab">
+                    <h3 align="left">Docked structures</h3>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/docked_models.tar.gz' %}" download>docked_models.tar.gz</a>
+                        </li>
+                    </ul>
+
+                    <h3 align="left">Single structures extracted from the docking structures</h3>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/single_models.tar.gz' %}" download>single_models.tar.gz</a>
+                        </li>
+                    </ul>
+                </div>
+<!-- 
+                <div class="tab-pane fade" id="nav-mutation" role="tabpanel" aria-labelledby="nav-mutation-tab">
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;">
+                        For analysis of genetic variation that may impact the viral-human interactome, two sets of mutations were compiled.
+                        Sequence deviations between SARS-CoV and SARS-CoV-2 were identified by comparing the SASR-CoV-2 proteins sequences based (genbank accession MN985325) against the SARS-CoV proteome (UniProt Proteome ID UP000000354).
+                        Human population variants in all 332 human proteins shown to interact with SARS-CoV-2 proteins were obtained from gnomAD.
+                        These mutation sets were analyzed for enrichment or depletion of variation along SARS-CoV-2-Human protein-protein interaction interfaces.
+                    </p>
+                    <h3 align="left">Mutations between SARS-CoV and SARS-CoV-2</h3>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/mutations/SARS_CoV_2_mutations_2021_05.txt' %}" download>SARS_CoV_2_mutations_2021_05.txt</a>
+                        </li>
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/mutations/SARS_CoV_2_mutation_enrichment_2021_05.txt' %}" download>SARS_CoV_2_mutation_enrichment_2021_05.txt</a>
+                        </li>
+                    </ul>
+                    <h3 align="left">Human population variants</h3>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/mutations/Human_population_variants_2021_05.txt' %}" download>Human_population_variants_2021_05.txt</a>
+                        </li>
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/mutations/Human_population_variants_enrichment_2021_05.txt' %}" download>Human_population_variants_enrichment_2021_05.txt</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tab-pane fade" id="nav-ΔΔG" role="tabpanel" aria-labelledby="nav-ΔΔG-tab">
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;">
+                        In order to predict the impact of variation at viral-human interaction interfaces on binding affinity, two sets of ΔΔG predictions were made using PyRosetta (<a href="https://academic.oup.com/bioinformatics/article/26/5/689/212442" target="_blank">Chaudhury <i>et al</i>.</a>).<br/><br/>
+                        <b>Set 1:</b> A scanning mutation ΔΔG approach was implemented to explore the overall binding energy contributions of each interface residue,
+                        and to predict the impact of all possible mutations along the interface.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/ddG/ddG_scanning_mutagenesis_2021_05.zip' %}" download>ddG_scanning_mutagenesis_2021_05.zip</a>
+                        </li>
+                    </ul>
+                    <p class="p2" style="text-align:justify; text-justify:inter-ideograph;">
+                        <b>Set 2:</b> Estimates of the overall impact of the cumulative set of mutations between SARS-CoV and SARS-CoV-2 were made using the same general framework.
+                        ΔΔG predictions for all population variants on the interfaces are also included.
+                    </p>
+                    <ul class="jnrLrr">
+                        <li class="li2" align="left">
+                            • &nbsp <a href="{% static 'downloads/ddG/ddG_summary_SARS_CoV_vs_SARS_CoV_2_2021_05.txt' %}" download>ddG_summary_SARS_CoV_vs_SARS_CoV_2_2021_05.txt</a>
+                        </li>
+                    </ul>
+                </div> -->
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container text-center small footer-text">
+            <span class="text-muted">
+                Designed by <a href="mailto:ll863@cornell.edu">Le Li</a> and Charles Liang | © 2023-2023 <a href="https://www.yulab.org">Haiyuan Yu</a>
+            </span>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>

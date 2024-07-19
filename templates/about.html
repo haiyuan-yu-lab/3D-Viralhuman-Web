@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" lang="en-US">
+    <meta name="author" content="Le Li, Charles Liang, Yu Lab, Cornell University">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>About</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        @media (max-width: 1388px) {
+            body {min-width: 1388px;}
+        }
+    </style>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'yulab.ico' %}"/>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178386462-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178386462-1');
+    </script>
+</head>
+<body class="d-flex flex-column">
+    <nav class="navbar navbar-expand-sm navbar-light fixed-top bg-light">
+        <a class="navbar-brand d-none d-sm-block" href="{% url 'index' %}">3D Viral-Human Interactome Browser</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Home</a>
+                </li>
+                <li class="nav-item ml-sm-3">
+                    <a class="nav-link" href="{% url 'downloads' %}">Downloads</a>
+                </li>
+                <li class="nav-item ml-sm-3 active">
+                    <a class="nav-link" href="{% url 'about' %}">About<span class="sr-only">(current)</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main role="main" class="container-fluid flex-fill mt-5">
+        <div class="row justify-content-center mt-5 text-left">
+            <div class="col-10 col-md-9">
+                <h3 class="mb-3">Citation</h3>
+                <p class="mb-5">TBD</p>
+<!--                <h3 class="mb-3">About</h3>
+                <p class="mb-5">TBD
+                </p> -->
+                <h3 class="mb-3">Versions</h3>
+                <p class="mb-5">
+                    <u>Version 1.0, Dated Jul 2024</u><br>
+                    Initial release.
+                </p>
+                <h3 class="mb-3">Contact</h3>
+                <p>
+                    3D Viral-Human Interactome Browser is provided by the <a href="http://www.yulab.org">Yu lab</a> at Cornell University. Please contact Le Li at <a href="mailto:ll863@cornell.edu">ll863@cornell.edu</a> for any issues or additional data requests.
+                </p>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container text-center small footer-text">
+            <span class="text-muted">
+                Designed by <a href="mailto:ll863@cornell.edu">Le Li</a> and Charles Liang | © 2023-2023 <a href="https://www.yulab.org">Haiyuan Yu</a>
+            </span>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+    
+</body>
+</html>

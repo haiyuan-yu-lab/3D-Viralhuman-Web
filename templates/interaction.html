@@ -1,0 +1,606 @@
+{% load mainapp_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" lang="en-US">
+    <meta name="author" content="Le Li, Charles Liang, Yu Lab, Cornell University">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ viral_prot }}_{{ human_prot }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/interaction.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'yulab.ico' %}"/>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178386462-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178386462-1');
+    </script>
+    <style>
+        @media (max-width: 1388px) {
+            body {min-width: 1388px;}
+        }
+        .fixed-height-infobox {
+            max-height: 1000px !important; /* Adjust the height as needed */
+            height: 500px !important;     /* Adjust the height as needed */
+            overflow-y: auto;             /* Ensure the content scrolls if it exceeds the height */
+        }
+        .threshold-label {
+            font-size: 15px; /* Change the size as needed */
+        }
+        .bg-light-gray {
+            background-color: rgba(0, 0, 0, 0.05);
+//            border-radius: 10px; /* Adjust the value to get the desired roundness */
+            padding: 1px; /* Optional: Add some padding for better spacing */
+//            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adjust the values for the desired shadow effect */
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body class="d-flex flex-column">
+    <nav class="navbar navbar-expand-sm navbar-light fixed-top bg-light">
+        <a class="navbar-brand d-none d-sm-block" href="{% url 'index' %}">3D Viral-Human Interactome Browser</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Home</a>
+                </li>
+                <li class="nav-item ml-sm-3">
+                    <a class="nav-link" href="{% url 'downloads' %}">Downloads</a>
+                </li>
+                <li class="nav-item ml-sm-3">
+                    <a class="nav-link" href="{% url 'about' %}">About</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main role="main" class="container-fluid flex-fill mt-5 mb-4">
+        <div class="row mt-4 mx-4 justify-content-around">
+            <div class="col-4 text-center flex-grow-1">
+                <div class="card viral-card mb-4">
+                    <div class="card-header">Viral Protein</div>
+                    <div class="card-body px-1">
+                        <div class="col px-0 table-responsive">
+                            <table class="table table-sm table-borderless mb-2">
+                                <tbody>
+                                    <tr>
+                                        <td class="font-weight-bold" style="width: 12%">GENE</td>
+                                        <td style="width: 13%">{{ viral_info.gene_name_true }}</td>
+                                        <td class="font-weight-bold" style="width: 12%">UNIPROT</td>
+                                        <td style="width: 13%"><a href="{% url 'inttable' %}?prot={{ viral_info.id|upper }}">{{ viral_info.id }}</a></td>
+                                        <td class="font-weight-bold" style="width: 12%">ENTRY</td>
+                                        <td style="width: 13%">{{ viral_info.gene_name }}</td>
+                                        <td class="font-weight-bold" style="width: 12%">LENGTH</td>
+                                        <td style="width: 13%">{{ viral_info.length }}</td>
+                                    </tr>
+                                    <tr>
+                                        
+                                        <td class="font-weight-bold" style="width: 12%">PROTEIN</td>
+                                        <td style="width: 13%">{{ viral_info.protein_name_true }}</td>
+                                        <td class="font-weight-bold" style="width: 12%">TAXONOMY</td>
+                                        <td style="width: 13%"><a href="{% url 'inttable' %}?taxID={{ viral_info.taxid }}">{{ viral_info.taxid }}</td>
+                                        <td class="font-weight-bold">ORGANISM</td>
+                                        <td align ="left" colspan="4">{{ viral_single.modbase_id }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion" id="viralAccordion">
+                    <div class="card viral-card" style="overflow-y: auto;">
+                        <div class="btn btn-link card-header" type="button" data-toggle="collapse" data-target="#collapseViralInterface" aria-expanded="true" aria-controls="collapseViralInterface" id="headingInterface">
+                            Interface View
+                        </div>
+                        <div id="collapseViralInterface" class="collapse show" aria-labelledby="headingInterface" data-parent="#viralAccordion">
+                            <div class="card-body" style="overflow-y: auto; ">
+                                <div class="row mb-lg-2">
+                                    <div class="col-12 small">
+                                        Interface Similarity Comparison
+                                    </div>
+                                </div>
+                                <div class="row mb-lg-2">
+                                    <div class="col-12 px-4 small table-responsive" style="max-height: 220px; overflow-y: scroll;">
+                                        <table class="table table-sm table-striped mb-2">
+                                            <thead>
+                                                <tr>
+                                                    <th class="align-middle" style="width: 25%">Reference</th>
+                                                    <th class="align-middle" style="width: 75%">Interface Representation on {{viral_info.gene_name}}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <td>
+                                                    <!-- <b>{{ viral_prot | slice:"7:" }}</b> -->
+                                                    <b>{{ viral_info.gene_name }}</b>
+                                                    <br/>
+                                                    {{ human_info.gene_name }}
+                                                    <br/>Score: {{ model_score }}
+                                                </td>
+                                                <td>
+                                                    <div class="row mt-2">
+                                                        <div id="viral-interface-0" class="col-12"></div>
+                                                    </div>
+                                                </td>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row mb-lg-2">
+                                    <div class="virus col-12 px-4 small table-responsive" style="max-height: 220px; overflow-y: scroll;">
+                                        <div style="border-bottom: 1px solid #dee2e6"></div>
+                                            <table class="table table-sm table-striped mb-2">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="align-middle" style="width: 25%; border-top:0px">
+                                                            <div style="opacity: 0.0;">{{ human_info.gene_name }}</div>
+
+                                                            <span title="AFM Score is AlphaFold-Multimer score; Similarity is reported as a Jaccard Similarity Coefficient between the listed interactions and the reference interaction.">
+                                                                Interactors <br/>AFM Score<br/> (Ires Similarity)
+                                                            </span>
+                                                            <div style="opacity: 0.0;">{{ viral_info.gene_name }}</div>
+                                                        </th>
+                                                        <th class="align-middle" style="width: 75%; border-top:0px">Interface Representation on {{viral_info.gene_name}}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for sim in viral_intsim %}
+                                                        <tr>
+                                                            {% if forloop.counter0 != 0 %}
+                                                                {% if sim.web != "NotFound" %}
+                                                                    <td>
+                                                                        {% if sim.p2_name >= "0.4" %}
+                                                                            <u><a href="{% url 'intsearch' %}?prot1={{ sim.p1_id }}&prot2={{ sim.p2_id }}">{{ sim.interactor_gene }}</a></u>
+                                                                        {% else %}
+                                                                            <a href="{% url 'intsearch' %}?prot1={{ sim.p1_id }}&prot2={{ sim.p2_id }}">{{ sim.interactor_gene }}</a>
+                                                                        {% endif %}
+                                                                        <br/>Score: {{ sim.p2_name | floatformat:3 }}
+                                                                        <br/>({{ sim.similarity | floatformat:3 }})
+                                                                    </td>
+                                                                {% else %}
+                                                                    <td>{{ sim.interactor }}<br/>({{ sim.similarity | floatformat:3 }})</td>
+                                                                {% endif %}
+                                                                {% if sim.ires == "NaN" %}
+                                                                    <td><br/>No interface residues</td>
+                                                                {% else %}
+                                                                    <td>
+                                                                        <div class="row mt-2" style="z-index:1">
+                                                                            <div id="viral-interface-{{forloop.counter0}}" class="col-12"></div>
+                                                                        </div>
+                                                                    </td>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 text-center flex-grow-1">
+                <div class="row justify-content-center">
+                    <div id="toggle-row" class="col-12 w-100 row justify-content-center align-items-center mb-0 bg-light-gray" hidden>
+                        <div class="col-4 text-center small"><b>Single structures</b></div>
+                        <div id="toggle-col" class="col-4 px-0">
+                            <label id="switch-docked-single" class="switch" hidden>
+                                <input type="checkbox" checked onclick="switchDockedSingle()">
+                                <span class="slider round type-active"></span>
+                            </label>
+                        </div>
+                        <div class="col-4 text-center small"><b>Co-complex structure</b></div>
+                    </div>
+                    {% if docked|length > 0 %}
+                        <div id="viewport-outer-div" class="col-12 w-100 mb-4 p-0 viewport" hidden>
+                            <div class="card border-dark h-100">
+                                {% if model_score >= 0.5 %}
+                                    <div id="docked-model-name" class="model-name small" style="color: #0000ff">Predicted structure with AFM score: {{model_score}}</div>
+                                {% elif model_score >= 0.23 %}
+                                    <div id="docked-model-name" class="model-name small" style="color: #ffdd00">Predicted structure with AFM score: {{model_score}}</div>
+                                {% else %}
+                                    <div id="docked-model-name" class="model-name small" style="color: #ff0000">Predicted structure with AFM score: {{model_score}}<br>Low-quality prediction, use it carefully!</div>
+                                {% endif %}
+                                <div class="card-body p-1">
+                                    <div class="h-100" id="viewport" role="NGL"></div>
+                                    <div id="vp-toggle-cartoon" class="cartoon-left-button toggle-button" title="View cartoon">
+                                        <span class="prolink" data-toggle="protein" data-target="viewport" data-view="reset">
+                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+                                    <div id="vp-toggle-surface" class="surface-left-button toggle-button" title="View surface">
+                                        <span class="prolink" data-toggle="protein" data-target="viewport" data-focus="surface">
+                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                        </span>
+                                    </div>
+<!--                                    <div id="vp1-previous-button" class="prolink" onclick="decrementDocked()" data-toggle="protein" data-target="viewport" data-view="reset" data-load="previous" style="left:0; position:absolute; top: 50%; text-align:center; cursor:pointer; z-index:600;">
+                                        <i class="fa fa-chevron-left" style="text-align:center; font-size: 28px;"></i>
+                                    </div>
+                                    <div id="vp1-next-button" class="prolink" onclick="incrementDocked()" data-toggle="protein" data-target="viewport" data-view="reset" data-load="next" style="right:0; position:absolute; top: 50%; text-align:center; cursor: pointer; z-index:600;">
+                                        <i class="fa fa-chevron-right" style="text-align:center; font-size: 28px;"></i>
+                                    </div>-->
+                                    <div class="model-tagline small" hidden>
+                                        Model index:
+                                        <span id="docked-model-tagline-text">1 / {{ docked|length }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div id="viral-viewport-outer-div" class="col-12 w-100 mb-0 p-0 viewport" hidden>
+                        <div class="card border-dark h-100">
+                            <div class="card-body p-1">
+                                <div id="viral-model-name" class="model-name small viral-single" hidden>
+                                    {% if viral_single.source == "PDB" %}
+                                        Structure of viral protein {{ viral_info.gene_name }}, from {{ viral_single.source }} {{ viral_single.pdb_id }}, chain {{ viral_single.chain }}
+                                    {% else %}
+                                        Structure of viral protein {{ viral_info.gene_name }}
+                                    {% endif %}
+                                </div>
+                                <div class="h-100" id="viral-viewport" role="NGL"></div>
+                                <div id="viral-vp-toggle-cartoon" class="cartoon-left-button toggle-button viral-single" title="View cartoon" hidden>
+                                    <span class="prolink" data-toggle="protein" data-target="viral-viewport" data-view="reset">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                                <div id="viral-vp-toggle-surface" class="surface-left-button toggle-button viral-single" title="View surface" hidden>
+                                    <span class="prolink" data-toggle="protein" data-target="viral-viewport" data-focus="surface">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="human-viewport-outer-div" class="col-12 w-100 mb-4 p-0 viewport" hidden>
+                        <div class="card border-dark h-100">
+                            <div class="card-body p-1">
+                                <div id="human-model-name" class="model-name small human-single" hidden>
+                                    {% if human_single.source == "PDB" %}
+                                        Structure of human protein {{ human_info.gene_name }}, from {{ human_single.source }} {{ human_single.pdb_id }}, chain {{ human_single.chain }}
+                                    {% else %}
+                                        Structure of human protein {{ human_info.gene_name }}
+                                    {% endif %}
+                                </div>
+                                <div class="h-100" id="human-viewport" role="NGL"></div>
+                                <div id="human-vp-toggle-cartoon" class="cartoon-left-button toggle-button human-single" title="View cartoon" hidden>
+                                    <span class="prolink" data-toggle="protein" data-target="human-viewport" data-view="reset">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                                <div id="human-vp-toggle-surface" class="surface-left-button toggle-button human-single" title="View surface" hidden>
+                                    <span class="prolink" data-toggle="protein" data-target="human-viewport" data-focus="surface">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-column w-120 col-12 p-0 viewport">
+                        <div id="infobox" class="card border-dark fixed-height-infobox">
+                            <div class="card-header" style="font-size: 25;"><b>List of Interface Residues</b></div>
+                            <div id="info-container" class="container p-0" style="overflow-y: auto;">
+
+                                <div class="row justify-content-center mb-2">
+                                    <div class="col-4">
+                                        <label for="sasa_thre" class="threshold-label">SASA Threshold: <span id="sasa_thre_value">15</span></label>
+                                        <input type="range" id="sasa_thre" name="sasa_thre" min="0" max="100" value="15" oninput="updateTables()">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="dsasa_thre" class="threshold-label">dSASA Threshold: <span id="dsasa_thre_value">1</span></label>
+                                        <input type="range" id="dsasa_thre" name="dsasa_thre" min="0" max="100" value="1" oninput="updateTables()">
+                                    </div>
+                                    <div class="col-4">
+                                        <label for="plddt_thre" class="threshold-label">pLDDT Threshold: <span id="plddt_thre_value">1</span></label>
+                                        <input type="range" id="plddt_thre" name="plddt_thre" min="0" max="100" value="50.0" oninput="updateTables()">
+                                    </div>
+                                </div>
+                                <div class="row justify-content-center">
+                                    <div class="col-10 px-1">
+                                        <ul class="nav nav-tabs justify-content-around" id="residue-nav" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="viral-tab" data-toggle="tab" href="#viral-res-div" role="tab" aria-controls="viral" aria-selected="true">Viral Ires</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="human-tab" data-toggle="tab" href="#human-res-div" role="tab" aria-controls="human" aria-selected="false">Human Ires</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" id="residue-tab-content">
+                                            <div class="tab-pane fade show active" id="viral-res-div" role="tabpanel" aria-labelledby="viral-tab">
+                                                <div id="viral-res-table" class="col-12 px-0 small table-responsive hidden">
+                                                    <table class="table table-sm table-striped mb-2">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="align-middle" style="width: 18%" title="Index of the interface residues of protein">Residue</th>
+                                                                <th class="align-middle" style="width: 13%" title="Amino acids">AA</th>
+                                                                <th class="align-middle" style="width: 23%" title="lDDT score predicted by AlphaFold-Multimer for each residue">pLDDT</th>
+                                                                <th class="align-middle" style="width: 23%" title="Surface Accessibility Surface Area values for the proteins in unbound form">SASA</th>
+                                                                <th class="align-middle" style="width: 23%" title="change of SASA values from unbound to bound form, dSASA>=1 indicates interface residues">dSASA</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="viral-res-table-body">
+                                                            {% for i in viral_residues_range %}
+                                                                {% if viral_info.SASA|index:i >= sasa_thre and viral_info.dSASA|index:i >= dsasa_thre and viral_info.plddt|index:i >= plddt_thre %}
+                                                                    <tr>
+                                                                        <td>{{ viral_info.res_range|index:i }}</td>
+                                                                        <td>{{ viral_info.sequence|index:i }}</td>
+                                                                        <td>{{ viral_info.plddt|index:i }}</td>
+                                                                        <td>{{ viral_info.SASA|index:i }}</td>
+                                                                        <td>{{ viral_info.dSASA|index:i }}</td>
+                                                                    </tr>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane fade" id="human-res-div" role="tabpanel" aria-labelledby="human-tab">
+                                                <div id="human-res-table" class="col-12 px-0 small table-responsive hidden">
+                                                    <table class="table table-sm table-striped mb-2">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="align-middle" style="width: 18%" title="Index of residues of protein">Residue</th>
+                                                                <th class="align-middle" style="width: 13%" title="Amino acids">AA</th>
+                                                                <th class="align-middle" style="width: 23%" title="lDDT score predicted by AlphaFold-Multimer for each residue">pLDDT</th>
+                                                                <th class="align-middle" style="width: 23%" title="Surface Accessibility Surface Area values for the proteins in unbound form">SASA</th>
+                                                                <th class="align-middle" style="width: 23%" title="change of SASA values from unbound to bound form, dSASA>=1 indicates interface residues">dSASA</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="human-res-table-body">
+                                                            {% for i in human_residues_range %}
+                                                                {% if human_info.SASA|index:i >= sasa_thre and human_info.dSASA|index:i >= dsasa_thre and human_info.plddt|index:i >= plddt_thre %}
+                                                                    <tr>
+                                                                        <td>{{ human_info.res_range|index:i }}</td>
+                                                                        <td>{{ human_info.sequence|index:i }}</td>
+                                                                        <td>{{ human_info.plddt|index:i }}</td>
+                                                                        <td>{{ human_info.SASA|index:i }}</td>
+                                                                        <td>{{ human_info.dSASA|index:i }}</td>
+                                                                    </tr>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 text-center flex-grow-1">
+                <div class="card human-card mb-4">
+                    <div class="card-header">Human Interactor</div>
+                    <div class="card-body px-1">
+                        <div class="col px-0 table-responsive">
+                            <table class="table table-sm table-borderless mb-2">
+                                <tbody>
+                                    <tr>
+                                        <td class="font-weight-bold" style="width: 12%">GENE</td>
+                                        <td style="width: 13%">{{ human_info.gene_name_true }}</td>
+                                        <td class="font-weight-bold" style="width: 12%">UNIPROT</td>
+                                        <td style="width: 13%"><a href="{% url 'inttable' %}?prot={{ human_info.id|upper }}">{{ human_info.id }}</a></td>
+                                        <td class="font-weight-bold" style="width: 12%">ENTRY</td>
+                                        <td style="width: 13%">{{ human_info.gene_name }}</td>
+                                        <td class="font-weight-bold" style="width: 12%">LENGTH</td>
+                                        <td style="width: 13%">{{ human_info.length }}</td>
+                                    </tr>
+                                    <tr>
+                                        
+                                        <td class="font-weight-bold" style="width: 12%">PROTEIN</td>
+                                        <td style="width: 13%">{{ human_info.protein_name_true }}</td>
+                                        <td class="font-weight-bold" style="width: 12%">TAXONOMY</td>
+                                        <td style="width: 13%">{{ human_info.taxid }}</td>
+                                        <td class="font-weight-bold">ORGANISM</td>
+                                        <td align ="left" colspan="4">{{ human_single.modbase_id }} </td>
+                                        <!-- <td style="width: 100%">{{ human_single.modbase_id }} </td> -->
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion" id="humanAccordion">
+                    <div class="card human-card" style="overflow-y: auto;">
+                        <div class="btn btn-link card-header" type="button" data-toggle="collapse" data-target="#collapseHumanInterface" aria-expanded="true" aria-controls="collapseHumanInterface" id="headingHumanInterface">
+                            Interface View
+                        </div>
+                        <div id="collapseHumanInterface" class="collapse show" aria-labelledby="headingHumanInterface" data-parent="#humanAccordion">
+                            <div class="card-body" style="overflow-y: auto;">
+                                <div class="row mb-lg-2">
+                                    <div class="col-12 small">
+                                        Interface Similarity Comparison
+                                    </div>
+								</div>
+                                <div class="row mb-lg-2">
+                                    <div class="virus col-12 px-4 small table-responsive" style="max-height: 220px; overflow-y: scroll;">
+                                        <table class="table table-sm table-striped mb-2">
+                                            <thead">
+                                                <tr>
+                                                    <th class="align-middle" style="width: 25%;">Reference</th>
+                                                    <th class="align-middle" style="width: 75%;">Interface Representation on {{human_info.gene_name}}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <b>{{ human_info.gene_name }}</b>
+                                                        <!-- <br/>{{ viral_prot | slice:"7:" }} -->
+                                                        <br/>
+                                                        {{ viral_info.gene_name}}
+                                                        <br/>Score: {{ model_score }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="row mt-2">
+                                                            <div id="human-interface-0" class="col-12"></div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row mb-lg-2">
+                                    <div class="virus col-12 px-4 small table-responsive" style="max-height: 400px; overflow-y: scroll;">
+                                        <table class="table table-sm table-striped mb-2">
+                                            <thead>
+                                                <tr>
+                                                    <th class="align-middle" style="width: 25%;">
+                                                        <div style="opacity: 0.0;">{{ human_info.gene_name }}</div>
+                                                        <span title="AFM Score is AlphaFold-Multimer score; Similarity is reported as a Jaccard Similarity Coefficient between the listed interactions and the reference interaction.">
+                                                            Interactors<br/>AFM Score<br/>(Ires Similarity)
+                                                        </span>
+                                                        <div style="opacity: 0.0;">{{ viral_info.gene_name }}</div>
+                                                    </th>
+                                                    <th class="align-middle" style="width: 75%;">Interface Representation on {{human_info.gene_name}}</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody">
+                                                
+                                                {% for sim in human_intsim %}
+                                                    <tr>
+                                                        {% if forloop.counter0 != 0 %}
+                                                            {% if sim.web != "NotFound" %}
+                                                                <td>
+                                                                    {% if sim.p2_name >= "0.4" %}
+                                                                        <u><a href="{% url 'intsearch' %}?prot1={{ sim.p1_id }}&prot2={{ sim.p2_id }}"> {{ sim.interactor_gene }}</a></u>
+                                                                    {% else %}
+                                                                        <a href="{% url 'intsearch' %}?prot1={{ sim.p1_id }}&prot2={{ sim.p2_id }}"> {{ sim.interactor_gene }}</a>
+                                                                    {% endif %}
+                                                                    <br/>Score: {{ sim.p2_name | floatformat:3 }}
+                                                                    <br/>({{ sim.similarity | floatformat:3 }})
+                                                                </td>
+                                                            {% else %}
+                                                                <td>{{sim.interactor}}<br/>({{ sim.similarity | floatformat:3 }})</td>
+                                                            {% endif %}
+                                                            {% if sim.ires == "NaN" %}
+                                                                <!-- <td></td> -->
+                                                                <td><br/> No interface residues </td>
+                                                            {% else %}
+                                                                <td>
+                                                                    <div class="row mt-2" style="z-index:1">
+                                                                        <div id="human-interface-{{forloop.counter0}}" class="col-12"></div>
+                                                                    </div>
+                                                                </td>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container text-center small footer-text">
+            <span class="text-muted">
+                Designed by <a href="mailto:ll863@cornell.edu">Le Li</a> and Charles Liang | © 2023-2023 <a href="https://www.yulab.org">Haiyuan Yu</a>
+            </span>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{% static 'js/ngl.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/michelanglo.js' %}"></script>
+    <script type="text/javascript">
+        let interactionString = "{{ viral_prot }}_{{ human_prot }}";
+        let staticPrefix = "{% get_static_prefix %}";
+        let viral_info = {{ viral_info|safe }};
+        let human_info = {{ human_info|safe }};
+        let viral_residues_range = {{ viral_residues_range|safe }};
+        let human_residues_range = {{ human_residues_range|safe }};
+        let docked = {{ docked|safe }};
+        let viral_single = {{ viral_single|safe }};
+        let human_single = {{ human_single|safe }};
+        let itf_docking_viral = {{ itf_docking.p1_ires_as_list|safe }};
+        let itf_docking_human = {{ itf_docking.p2_ires_as_list|safe }};
+        let itf_eclair_viral = {{ itf_eclair.p1_ires_as_list|safe }};
+        let itf_eclair_human = {{ itf_eclair.p2_ires_as_list|safe }};
+        let viral_muts = {{ viral_muts|safe }};
+        let viral_intsim = {{ viral_intsim|safe }};
+        let human_intsim = {{ human_intsim|safe }};
+        let popvars = {{ popvars|safe }};
+        let viral_enrichment = {{ viral_enrichment|safe }};
+        let human_enrichment = {{ human_enrichment|safe }};
+        let viral_domain = {{ viral_domain|safe }};
+        let human_domain = {{ human_domain|safe }};
+        let ddg_summary = {{ ddg_summary|safe }};
+        let drugs = {{ drugs|safe }};
+        let currentIndex = 0;
+        let filteredViralIndices = [];
+        let filteredHumanIndices = [];
+
+        function updateTables() {
+            let sasa_thre = document.getElementById("sasa_thre").value;
+            let dsasa_thre = document.getElementById("dsasa_thre").value;
+            let plddt_thre = document.getElementById("plddt_thre").value;
+            document.getElementById("sasa_thre_value").innerText = sasa_thre;
+            document.getElementById("dsasa_thre_value").innerText = dsasa_thre;
+            document.getElementById("plddt_thre_value").innerText = plddt_thre;
+
+            let viral_res_table_body = document.getElementById("viral-res-table-body");
+            let human_res_table_body = document.getElementById("human-res-table-body");
+
+            viral_res_table_body.innerHTML = '';
+            human_res_table_body.innerHTML = '';
+
+            {% for i in viral_residues_range %}
+                if (viral_info.SASA[{{ i }}] >= sasa_thre && viral_info.dSASA[{{ i }}] >= dsasa_thre && viral_info.plddt[{{ i }}] >= plddt_thre) {
+                    viral_res_table_body.innerHTML += `
+                    <tr>
+                        <td>{{ viral_info.res_range|index:i }}</td>
+                        <td>{{ viral_info.sequence|index:i }}</td>
+                        <td>{{ viral_info.plddt|index:i }}</td>
+                        <td>{{ viral_info.SASA|index:i }}</td>
+                        <td>{{ viral_info.dSASA|index:i }}</td>
+                    </tr>
+                    `;
+                    filteredViralIndices.push({{ viral_info.res_range|index:i }});
+                }
+            {% endfor %}
+
+            {% for i in human_residues_range %}
+                if (human_info.SASA[{{ i }}] >= sasa_thre && human_info.dSASA[{{ i }}] >= dsasa_thre && human_info.plddt[{{ i }}] >= plddt_thre) {
+                    human_res_table_body.innerHTML += `
+                    <tr>
+                        <td>{{ human_info.res_range|index:i }}</td>
+                        <td>{{ human_info.sequence|index:i }}</td>
+                        <td>{{ human_info.plddt|index:i }}</td>
+                        <td>{{ human_info.SASA|index:i }}</td>
+                        <td>{{ human_info.dSASA|index:i }}</td>
+                    </tr>
+                    `;
+                    filteredHumanIndices.push({{ human_info.res_range|index:i }});
+                }
+            {% endfor %}
+//            updateGraphWithFilteredIndices(filteredViralIndices, filteredHumanIndices);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTables();
+//            showDocked();
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'js/interaction.js' %}"></script>
+</body>
+</html>

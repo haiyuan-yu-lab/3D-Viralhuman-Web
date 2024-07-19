@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" lang="en-US">
+    <meta name="author" content="Le Li, Charles Liang, Yu Lab, Cornell University">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>3D Viral-human Interactome Browser</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'yulab.ico' %}"/>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178386462-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-178386462-1');
+    </script>
+    <style>
+        .form-div {
+            padding: 1px;
+            margin-bottom: 1px;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: -5px;
+        }
+        .form-group {
+            margin-bottom: 1px;
+        }
+        form {
+            margin-bottom: 1px;
+        }
+        .form-container div {
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+        .form-container form {
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+        body {
+            font-size: 1vw;
+        }
+        h6{
+            font-size: 1.2vw;
+        }
+        .small, .form-control, .btn {
+            font-size: 0.8vw;
+        }
+        #arc-svg {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        #form-div {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 25%;
+            height: 25%;
+        }
+        #switch-div {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column">
+    <nav class="navbar navbar-expand-sm navbar-light fixed-top bg-light">
+        <a class="navbar-brand d-none d-sm-block" href="{% url 'index' %}">3D Viral-human Interactome Browser</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'index' %}">Home<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item ml-sm-3">
+                    <a class="nav-link" href="{% url 'downloads' %}">Downloads</a>
+                </li>
+                <li class="nav-item ml-sm-3">
+                    <a class="nav-link" href="{% url 'about' %}">About</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main role="main" class="container-fluid flex-fill mt-5">
+        <div id="particles-js"></div>
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div id="arc-svg">
+                    <div id="form-div" class="container-fluid d-flex justify-content-center align-items-center px-0">
+                        <form id="index-form" class="h-100 w-100" action="{% url 'intsearch' %}" onsubmit="return validate()" method="GET" style="display: block;">
+                            <div><h6>Choose an interaction:</h6></div>
+                            <div class="row mt-4 justify-content-around form-group">
+                                <div class="col-6 text-center">
+                                    <label for="prot1" class="small">Viral protein</label>
+                                    <select class="form-control" id="prot1" name="prot1" onchange="populateInteractor()">
+                                        <option selected>--</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <label for="prot2" class="small">Human protein</label>
+                                    <select class="form-control" id="prot2" name="prot2" disabled>
+                                        <option selected></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-4 justify-content-center form-group">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-outline-info" type="submit">3Dize it!</button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="index-form2" class="h-100 w-100" action="{% url 'intsearch' %}" onsubmit="return validate2()" method="GET" style="display: none;">
+                            <div><h6>Input an interaction:</h6></div>
+                            <div class="row mt-4 justify-content-around form-group">
+                                <div class="col-6 text-center">
+                                    <label for="prot1" class="small">Viral protein</label>
+                                    <input class="form-control" id="prot1" type="search" name="prot1" value="" placeholder="UniProt/Entry">
+                                    <label for="prot1" class="small">e.g. P06428, VE6_HPV08</label>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <label for="prot2" class="small">Human protein</label>
+                                    <input class="form-control" id="prot2" type="search" name="prot2" value="" placeholder="UniProt/Entry/Gene name">
+                                    <label for="prot2" class="small">e.g. Q1MSJ5, CSPP1</label>
+                                </div>
+                            </div>
+                            <div class="row mt-4 justify-content-center form-group">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-outline-info" type="submit">3Dize it!</button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="index-form3" class="h-50 w-100" action="{% url 'inttable' %}" onsubmit="return validate3()" method="GET" style="display: none;">
+                            <div><h6>Input a single protein:</h6></div>
+                            <div class="row mt-4 justify-content-around form-group">
+                                <div class="col-6 text-center">
+                                    <label for="prot" class="small">UniProt ID/Protein Entry/Gene Name</label>
+                                    <input class="form-control" id="prot" type="search" name="prot" value="" style="font-size: 10px;" placeholder="UniProt/Entry/Gene name">
+                                    <label for="prot" class="small" style="font-size: 10px;">e.g. Q1MSJ5, CSPP1_HUMAN, CSPP1</label>
+                                </div>
+                            </div>
+                            <div class="row mt-4 justify-content-center form-group">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-outline-info" type="submit">List it!</button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="index-form4" class="h-50 w-100" action="{% url 'inttable' %}" onsubmit="return validate4()" method="GET" style="display: none;">
+                            <div><h6>Input a taxonomy ID:</h6></div>
+                            <div class="row mt-4 justify-content-around form-group">
+                                <div class="col-6 text-center">
+                                    <label for="taxID" class="small">Taxonomy ID of a virus</label>
+                                    <input class="form-control" id="taxID" type="search" name="taxID" value="" style="font-size: 10px;" placeholder="Taxonomy ID of virus">
+                                    <label for="taxID" class="small" style="font-size: 10px;">e.g. 10298</label>
+                                </div>
+                            </div>
+                            <div class="row mt-4 justify-content-center form-group">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-outline-info" type="submit">List it!</button>
+                                </div>
+                            </div>
+                        </form>
+<!--                        <form id="index-form3" class="h-100 w-100" action="{% url 'intsearch' %}" onsubmit="return validate3()" method="GET" style="display: none;">
+                            <div><h6>Input a single protein:</h6></div>
+                            <div class="row mt-4 justify-content-around form-group">
+                                <div class="col-12 text-center">
+                                    <label for="prot" class="small">UniProt ID/Protein Entry/Gene Name</label>
+                                    <input class="form-control" id="prot" type="search" name="prot" value="" placeholder="UniProt/Entry/Gene name">
+                                    <label for="prot" class="small">e.g. Q1MSJ5, CSPP1_HUMAN, CSPP1</label>
+                                </div>
+                            </div>
+                            <div class="row mt-4 justify-content-center form-group">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-outline-info" type="submit">List it!</button>
+                                </div>
+                            </div>
+                        </form>
+                        <form id="index-form4" class="h-100 w-100" action="{% url 'intsearch' %}" onsubmit="return validate4()" method="GET" style="display: none;">
+                            <div><h6>Input a taxonomy ID:</h6></div>
+                            <div class="row mt-4 justify-content-around form-group">
+                                <div class="col-12 text-center">
+                                    <label for="taxID" class="small">Taxonomy ID of a virus</label>
+                                    <input class="form-control" id="taxID" type="search" name="taxID" value="" placeholder="Taxonomy ID of virus">
+                                    <label for="taxID" class="small">e.g. 10298</label>
+                                </div>
+                            </div>
+                            <div class="row mt-4 justify-content-center form-group">
+                                <div class="col-12 text-center">
+                                    <button class="btn btn-outline-info" type="submit">List it!</button>
+                                </div>
+                            </div>
+                        </form>-->
+                    </div>
+                    <div id="switch-div" class="text-center mt-4">
+                        <button class="btn btn-danger" onclick="showSelf()">Input switch</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer mt-auto">
+        <div class="container text-center small footer-text">
+            <span class="text-muted">
+                Designed by <a href="mailto:ll863@cornell.edu">Le Li</a> and Charles Liang | © 2023-2023 <a href="https://www.yulab.org">Haiyuan Yu</a>
+            </span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="http://threejs.org/examples/js/libs/stats.min.js"></script>
+    <script type="text/javascript">
+        let staticPrefix = "{% get_static_prefix %}";
+        let intsearchURL = "{% url 'intsearch' %}";
+        let interactionDicts = {{ interactions|safe }};
+        let humanInfo = {{ human_info|safe }};
+        let viralInfo = {{ viral_info|safe }};
+        let humanUniprotToGene = {}
+        let humanUniprotToGeneTrue = {}
+        let humanUniprotToProteinTrue = {}
+        let viralTaxList = []
+        let viralUniprotToGene = {}
+        let viralUniprotToGeneTrue = {}
+        let viralUniprotToProteinTrue = {}
+        let data_hprot = []
+        let viralFamily = new Set()
+        
+        for (let i = 0; i < humanInfo.length; i++) {
+            humanUniprotToGene[humanInfo[i]["uniprot"]] = humanInfo[i]["gene_name"];
+            humanUniprotToGeneTrue[humanInfo[i]["uniprot"]] = humanInfo[i]["gene_name_true"].toUpperCase();
+            humanUniprotToProteinTrue[humanInfo[i]["uniprot"]] = humanInfo[i]["protein_name_true"].toUpperCase();
+        }
+        for (let i = 0; i < viralInfo.length; i++) {
+            viralUniprotToGene[viralInfo[i]["uniprot"]] = viralInfo[i]["gene_name"];
+            viralUniprotToGeneTrue[viralInfo[i]["uniprot"]] = viralInfo[i]["gene_name_true"].toUpperCase();
+            viralUniprotToProteinTrue[viralInfo[i]["uniprot"]] = viralInfo[i]["protein_name_true"].toUpperCase();
+            viralTaxList.push(viralInfo[i]['taxid']);
+        }
+        let interactionByViralProt = {};
+        for (let i = 0; i < interactionDicts.length; i++) {
+            let currDict = interactionDicts[i];
+            if (!interactionByViralProt[currDict['p1']]) {
+                interactionByViralProt[currDict['p1']] = [currDict['p2']];
+                viralFamily.add(currDict["source"])
+                data_hprot.push({name: currDict['p1'], family: currDict["source"] ,value: 1})
+            }
+            else interactionByViralProt[currDict['p1']].push(currDict['p2']);
+        }
+        let data = []
+        for (let ele of viralFamily){
+            data.push({name: ele, value: 1})
+        }
+        data.push({name: "ALL", value: 1})
+        data.push({name: "", value: 1})
+        data_hprot.push({name: "", value: 1})
+        for (let viralProt in interactionByViralProt) {
+            interactionByViralProt[viralProt].sort(function (a, b) {
+                if (humanUniprotToGene[a] > humanUniprotToGene[b]) return 1;
+                else if (humanUniprotToGene[a] < humanUniprotToGene[b]) return -1;
+                else return 0;
+            });
+        }
+        let noStructure = ["nsp3", "nsp6", "nsp11", "nsp16", "orf3a", "orf3b", "E", "M", "orf7b", "N", "orf10"];
+
+        function validate() {
+            let prot1 = document.forms["index-form"]["prot1"].value;
+            let prot2 = document.forms["index-form"]["prot2"].value;
+            if (prot1 === "--" || prot2 === "") {
+                alert("Please select both the viral and the human protein.");
+                return false;
+            }
+        }
+        function validate2() {
+            var prot1 = document.forms["index-form2"]["prot1"];
+            var prot2 = document.forms["index-form2"]["prot2"];
+            if (prot1.value === "" || prot1.value === "-") {
+                alert("Please input correct ID/name for the viral protein.");
+                return false;
+            }
+            if (prot2.value === "" || prot2.value === "-") {
+                alert("Please input correct ID/name for the human protein.");
+                return false;
+            }
+            if (  !(prot1.value.toUpperCase() in viralUniprotToGene) && !Object.values(viralUniprotToGene).includes(prot1.value)  ) {
+                alert("Please input correct ID/name for the viral protein.");
+                return false;
+            }
+            if (!(prot2.value.toUpperCase() in humanUniprotToGene) && !Object.values(humanUniprotToGeneTrue).includes(prot2.value.toUpperCase()) && !Object.values(humanUniprotToGene).includes(prot2.value)){
+                alert("Please input correct ID/name for the human protein.");
+                return false;
+            }
+            if (Object.values(humanUniprotToGeneTrue).includes(prot2.value.toUpperCase())){
+                prot2.value = Object.keys(humanUniprotToGeneTrue).find(key => humanUniprotToGeneTrue[key] === prot2.value.toUpperCase());
+            }
+            if (Object.values(viralUniprotToGene).includes(prot1.value)){
+                prot1.value = Object.keys(viralUniprotToGene).find(key => viralUniprotToGene[key] === prot1.value);
+            }
+            if (Object.values(humanUniprotToGene).includes(prot2.value)){
+                prot2.value = Object.keys(humanUniprotToGene).find(key => humanUniprotToGene[key] === prot2.value);
+            }
+            if (!interactionByViralProt[prot1.value].includes(prot2.value)){
+                alert("The input pair of viral-human proteins is not found in the database.")
+                return false;
+            }
+            
+        }
+        function validate3() {
+            var singX = document.forms["index-form3"]["prot"];
+            if (singX.value === "" || singX.value === "-") {
+                alert("Please input correct ID/name for the single protein.");
+                return false;
+            }
+            if (!(singX.value.toUpperCase() in humanUniprotToGene) && !Object.values(humanUniprotToGeneTrue).includes(singX.value.toUpperCase()) && !Object.values(humanUniprotToGene).includes(singX.value) && !(singX.value.toUpperCase() in viralUniprotToGene) && !Object.values(viralUniprotToGeneTrue).includes(singX.value.toUpperCase()) && !Object.values(viralUniprotToGene).includes(singX.value)){
+                alert("The input protein is not valid or not included in the database.");
+                return false;
+            }
+        }
+        function validate4() {
+            var taxID = document.forms["index-form4"]["taxID"];
+            if (taxID.value === "" || taxID.value === "-") {
+                alert("Please input correct taxonomy ID for the virus.");
+                return false;
+            }
+            if (  !(viralTaxList.includes(taxID.value)) ) {
+                alert("The input taxonomy ID is incorrect or not in the database.");
+                return false;
+            }
+        }
+        function showSelf() {
+            var s1 = document.getElementById('index-form');
+            var s2 = document.getElementById('index-form2');
+            var s3 = document.getElementById('index-form3');
+            var s4 = document.getElementById('index-form4');
+            
+            if (s1.style.display === 'block'){
+                document.getElementById('index-form').style.display = 'none';
+                document.getElementById('index-form2').style.display = 'block';
+                document.getElementById('index-form3').style.display = 'none';
+                document.getElementById('index-form4').style.display = 'none';
+            }else if (s2.style.display === 'block'){
+                document.getElementById('index-form').style.display = 'none';
+                document.getElementById('index-form2').style.display = 'none';
+                document.getElementById('index-form3').style.display = 'block';
+                document.getElementById('index-form4').style.display = 'none';
+            }else if (s3.style.display === 'block'){
+                document.getElementById('index-form').style.display = 'none';
+                document.getElementById('index-form2').style.display = 'none';
+                document.getElementById('index-form3').style.display = 'none';
+                document.getElementById('index-form4').style.display = 'block';
+            }else if (s4.style.display === 'block'){
+                document.getElementById('index-form').style.display = 'block';
+                document.getElementById('index-form2').style.display = 'none';
+                document.getElementById('index-form3').style.display = 'none';
+                document.getElementById('index-form4').style.display = 'none';
+            }
+        }
+    </script>
+
+    <script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+</body>
+</html>

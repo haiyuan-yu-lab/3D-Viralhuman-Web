@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=${DJANGO_DB_NAME}
+      - POSTGRES_USER=${DJANGO_DB_USER}
+      - POSTGRES_PASSWORD=${DJANGO_DB_PASSWORD}
+      - TZ=UTC
+    networks:
+      - mynetwork
+
+  web:
+    build: .
+    command: runserver 0.0.0.0:8182
+    env_file:
+      - .env
+    volumes:
+      - .:/code
+    ports:
+      - "9261:8182"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
