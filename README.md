@@ -32,7 +32,7 @@ Source code for the Django Web Server, data is not included. The running server 
 
 ## Access the webserver:
 1. Locally (development):
-    - [server ip]:[host port] (for example, if I run the containers on the server with address xxx.xxx.xxx, then the address of the webserver is `xxx.xxx.xxx:8888`)
+    - [server ip]:[host port] (for example, if I run the containers on the server with address `xxx.xxx.xxx`, then the address of the webserver is `xxx.xxx.xxx:8888`)
 2. Publicly (production):
     - Make sure the webserver is running smoothly on your server
     - Contact the server owner/technician to set up the proxy to the public domain
